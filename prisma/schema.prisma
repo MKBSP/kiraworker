@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  clientName    String
+  sourceUrl     String
+  templateKey   String   // "tpl-1"..."tpl-5"
+  status        String   @default("pending") // "pending" | "ready" | "error"
+  locale        String   @default("auto") // "auto"|"en"|"es"|"pt"
+  tone          String   @default("neutral") // "corporate"|"neutral"|"friendly"
+  brandStyleId  String?
+  brandStyle    BrandStyle? @relation(fields: [brandStyleId], references: [id])
+  pageId        String?  @unique
+  page          Page?    @relation(fields: [pageId], references: [id])
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime?
+  
+  @@map("kira_projects")
+}
+
+model BrandStyle {
+  id               String   @id @default(cuid())
+  primaryColor     String?
+  secondaryColor   String?
+  accentColor      String?
+  fontFamilies     String[] // ["Inter","Montserrat"]
+  logoUrl          String?
+  faviconUrl       String?
+  languageDetected String?  // "en","es","pt", etc.
+  styleNotes       Json?    // e.g., "formal, short sentences"
+  createdAt        DateTime @default(now())
+  projects         Project[]
+  
+  @@map("kira_brand_styles")
+}
+
+model Page {
+  id           String   @id @default(cuid())
+  projectId    String   @unique
+  project      Project? @relation
+  sections     Json     // canonical schema
+  publishedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("kira_pages")
+}
