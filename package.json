@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "ts-node worker/brand-scrape-worker.ts",
+    "build": "echo 'No build step required for worker'",
     "prisma": "prisma generate",
     "postinstall": "prisma generate"
   },
